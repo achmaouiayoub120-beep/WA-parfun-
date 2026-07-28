@@ -34,7 +34,7 @@ export function Scene() {
           <PerfumeBottle />
           
           {/* Post Processing for Cinematic Look */}
-          <EffectComposer disableNormalPass>
+          <EffectComposer enableNormalPass={false}>
             <Bloom 
               luminanceThreshold={0.2} 
               luminanceSmoothing={0.9} 
