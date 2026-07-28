@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -47,12 +48,15 @@ export default function Footer() {
       {/* Main Footer */}
       <div className="max-w-[1440px] mx-auto px-6 md:px-10 pt-24 pb-16">
         {/* Large Brand Title */}
-        <h2
-          ref={titleRef}
-          className="font-[family-name:var(--font-cormorant)] text-5xl md:text-7xl lg:text-8xl font-light tracking-[0.08em] text-[#F5F2EC] text-center mb-16 opacity-0"
-        >
-          WA Perfumes
-        </h2>
+        <div ref={titleRef} className="flex justify-center mb-16 opacity-0">
+          <Image
+            src="/logo.png"
+            alt="WA Perfumes Logo"
+            width={240}
+            height={120}
+            className="object-contain w-48 h-24 md:w-64 md:h-32"
+          />
+        </div>
 
         {/* Tagline */}
         <p className="text-center text-[0.65rem] uppercase tracking-[0.5em] text-[#C9A876] mb-12">
