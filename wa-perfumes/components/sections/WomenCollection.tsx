@@ -1,80 +1,89 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
-import { ProductCard } from '@/components/ui/ProductCard';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { WOMEN_PRODUCTS } from '@/data/products/women';
+import ProductCard from '@/components/ui/ProductCard';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function WomenCollection() {
-  const containerRef = useRef<HTMLDivElement>(null);
+export default function WomenCollection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const ctx = gsap.context(() => {
+      if (!cardsRef.current) return;
 
-    const cards = gsap.utils.toArray('.women-product-card');
+      const cards = cardsRef.current.querySelectorAll('.product-card-wrapper');
 
-    cards.forEach((card: any, i) => {
       gsap.fromTo(
-        card,
-        { 
-          opacity: 0, 
-          y: 100,
-          rotateY: -10 
-        },
+        cards,
+        { opacity: 0, y: 60 },
         {
           opacity: 1,
           y: 0,
-          rotateY: 0,
-          duration: 1,
+          duration: 0.8,
+          stagger: 0.1,
           ease: 'power3.out',
           scrollTrigger: {
-            trigger: card,
-            start: 'top bottom-=100',
-            toggleActions: 'play none none reverse',
+            trigger: cardsRef.current,
+            start: 'top 80%',
+            once: true,
           },
         }
       );
-    });
+    }, sectionRef);
 
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section className="relative w-full bg-[#050505] py-32 px-4 md:px-8 lg:px-16" ref={containerRef}>
-      
-      {/* Background soft glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#C97B84]/5 to-transparent pointer-events-none" />
+    <section
+      ref={sectionRef}
+      className="relative"
+      style={{
+        paddingTop: 'var(--space-section)',
+        paddingBottom: 'var(--space-section)',
+        paddingLeft: 'var(--space-gutter)',
+        paddingRight: 'var(--space-gutter)',
+      }}
+    >
+      {/* Subtle rose-gold ambient glow */}
+      <div className="absolute inset-0 bg-[rgba(201,123,132,0.02)] pointer-events-none" />
 
-      {/* Section Header */}
-      <div className="flex flex-col items-center text-center mb-24 relative z-10">
-        <span className="text-[#E8A5AE] text-xs tracking-[0.3em] uppercase mb-4">The Soft Collection</span>
-        <h2 className="text-5xl md:text-7xl font-serif text-[#FAFAFA] mb-8">WA Elegance</h2>
-        
-        {/* Decorative Divider */}
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-[#C97B84]" />
-          <div className="w-2 h-2 rounded-full border border-[#C97B84]" />
-          <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-[#C97B84]" />
+      <div className="max-w-[1440px] mx-auto relative z-10">
+        {/* Gold Divider */}
+        <div className="divider-gold mb-16" />
+
+        {/* Header */}
+        <div className="mb-16 text-right">
+          <p className="editorial-subtitle mb-4" style={{ color: '#C97B84' }}>
+            Femme Collection
+          </p>
+          <h2 className="heading-section text-[#F5F2EC]">WA Elegance</h2>
+          <p className="body-large mt-4 max-w-xl ml-auto">
+            Nine refined fragrances for the sophisticated woman. Lush florals, warm vanilla, and radiant musk.
+          </p>
         </div>
-      </div>
 
-      {/* Product Grid (Asymmetric) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-12 max-w-[1600px] mx-auto relative z-10">
-        {WOMEN_PRODUCTS.map((product, index) => (
-          <div 
-            key={product.id} 
-            className={`women-product-card ${
-              index % 3 === 0 ? 'md:mt-16' : index % 3 === 1 ? 'lg:mt-32' : ''
-            }`}
-          >
-            <ProductCard product={product} />
-          </div>
-        ))}
+        {/* Asymmetric Product Grid — opposite stagger from men */}
+        <div
+          ref={cardsRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+        >
+          {WOMEN_PRODUCTS.map((product: any, index: number) => (
+            <div
+              key={product.id}
+              className={`product-card-wrapper ${
+                index % 5 === 0 ? 'md:mt-12' : index % 5 === 2 ? 'md:mt-8' : ''
+              }`}
+            >
+              <ProductCard product={{ ...product, collection: 'elegance' as const }} />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

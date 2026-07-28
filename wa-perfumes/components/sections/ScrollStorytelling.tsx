@@ -1,134 +1,182 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
+import Image from 'next/image';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const WORLDS = [
   {
-    id: 'oud',
-    title: 'Oud Forest',
-    desc: 'Deep, resinous, and unapologetically bold.',
-    color: '#1a1412',
-    image: '/images/hero/hero-bg.jpg', // Reusing hero-bg for now, can be updated
+    num: '01',
+    name: 'Oud Forest',
+    description: 'A journey through ancient woods where smoke curls between dark trees and gold dust settles like whispered secrets.',
+    notes: ['Oud', 'Cedarwood', 'Smoke'],
+    image: '/images/hero/hero-bg.jpg',
+    gradient: 'from-[#1a1412] via-[#0A0A0A] to-[#0d0b09]',
   },
   {
-    id: 'amber',
-    title: 'Amber Desert',
-    desc: 'Warm golden sands and sweet spice.',
-    color: '#2a1a08',
-    image: '/images/hero/hero-bg.jpg',
+    num: '02',
+    name: 'Amber Desert',
+    description: 'Warm sands stretch endlessly under a golden sun, carrying the rich sweetness of amber and sun-baked spice.',
+    notes: ['Amber', 'Saffron', 'Vanilla'],
+    image: '/images/gallery/gallery-01.jpg',
+    gradient: 'from-[#2a1a08] via-[#0A0A0A] to-[#1a1408]',
   },
   {
-    id: 'vanilla',
-    title: 'Vanilla Clouds',
-    desc: 'Soft, creamy, and intimately comforting.',
-    color: '#1a1816',
-    image: '/images/hero/hero-bg.jpg',
+    num: '03',
+    name: 'Vanilla Clouds',
+    description: 'Floating through cream-soft atmospheres where light filters golden through layers of sweetness and warmth.',
+    notes: ['Vanilla', 'Tonka Bean', 'Musk'],
+    image: '/images/gallery/gallery-02.jpg',
+    gradient: 'from-[#1a1816] via-[#0A0A0A] to-[#141210]',
   },
 ];
 
-export function ScrollStorytelling() {
+export default function ScrollStorytelling() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const sectionsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const worldRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const ctx = gsap.context(() => {
+      worldRefs.current.forEach((world, i) => {
+        if (!world) return;
 
-    // Pin the container
-    ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: 'top top',
-      end: `+=${WORLDS.length * 100}%`,
-      pin: true,
-      anticipatePin: 1,
-    });
+        const content = world.querySelector('.world-content');
+        const image = world.querySelector('.world-image');
+        const notes = world.querySelectorAll('.world-note');
 
-    // Animate each section
-    sectionsRef.current.forEach((section, i) => {
-      if (!section) return;
+        // Fade in content
+        gsap.fromTo(
+          content,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: world,
+              start: 'top 70%',
+              end: 'top 30%',
+              scrub: 0.8,
+            },
+          }
+        );
 
-      const title = section.querySelector('.world-title');
-      const desc = section.querySelector('.world-desc');
-      const bg = section.querySelector('.world-bg');
+        // Parallax image
+        gsap.fromTo(
+          image,
+          { scale: 1.1, opacity: 0.3 },
+          {
+            scale: 1,
+            opacity: 0.5,
+            scrollTrigger: {
+              trigger: world,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1,
+            },
+          }
+        );
 
-      // Create a timeline for each world
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: `top+=${i * 100}% top`,
-          end: `top+=${(i + 1) * 100}% top`,
-          scrub: 1,
-        },
+        // Stagger notes
+        gsap.fromTo(
+          notes,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            stagger: 0.1,
+            duration: 0.6,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: world,
+              start: 'top 50%',
+              once: true,
+            },
+          }
+        );
+
+        // Fade out when scrolling past
+        if (i < WORLDS.length - 1) {
+          gsap.to(content, {
+            opacity: 0,
+            y: -40,
+            scrollTrigger: {
+              trigger: world,
+              start: 'bottom 60%',
+              end: 'bottom 20%',
+              scrub: 0.8,
+            },
+          });
+        }
       });
+    }, containerRef);
 
-      // Fade in/out the background
-      if (i > 0) {
-        tl.fromTo(bg, { opacity: 0 }, { opacity: 1, duration: 0.2 }, 0);
-      }
-
-      // Animate text
-      tl.fromTo(
-        title,
-        { y: 100, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.4 },
-        0.1
-      )
-      .fromTo(
-        desc,
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.4 },
-        0.2
-      );
-
-      // Fade out at the end of the section (unless it's the last one)
-      if (i < WORLDS.length - 1) {
-        tl.to(title, { y: -100, opacity: 0, duration: 0.4 }, 0.6)
-          .to(desc, { y: -50, opacity: 0, duration: 0.4 }, 0.7);
-      }
-    });
-
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full h-screen overflow-hidden bg-[#050505]">
+    <div ref={containerRef} className="relative">
+      {/* Section Header */}
+      <div className="py-20 px-6 text-center">
+        <p className="editorial-subtitle mb-4">The Olfactory Journey</p>
+        <h2 className="heading-section text-[#F5F2EC]">
+          Three Worlds
+        </h2>
+        <div className="w-16 h-[1px] bg-[#C9A876] mx-auto mt-8 opacity-40" />
+      </div>
+
+      {/* Worlds */}
       {WORLDS.map((world, i) => (
         <div
-          key={world.id}
-          ref={(el) => {
-            sectionsRef.current[i] = el;
-          }}
-          className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-none"
-          style={{ zIndex: i }}
+          key={world.num}
+          ref={(el) => { worldRefs.current[i] = el; }}
+          className="relative min-h-screen flex items-center justify-center overflow-hidden"
         >
-          {/* Background layer */}
-          <div
-            className="world-bg absolute inset-0 bg-cover bg-center opacity-0 transition-opacity"
-            style={{
-              backgroundImage: `url(${world.image})`,
-              backgroundColor: world.color,
-              backgroundBlendMode: 'multiply',
-            }}
-          />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]" />
-          
+          {/* Background Image */}
+          <div className="world-image absolute inset-0 opacity-30">
+            <Image
+              src={world.image}
+              alt={world.name}
+              fill
+              className="object-cover"
+              sizes="100vw"
+              quality={75}
+            />
+            <div className={`absolute inset-0 bg-gradient-to-b ${world.gradient}`} />
+          </div>
+
           {/* Content */}
-          <div className="relative z-10 text-center px-4 max-w-2xl mx-auto">
-            <h2 className="world-title text-5xl md:text-7xl font-serif text-[#D4AF37] mb-6 opacity-0 translate-y-12 mix-blend-screen">
-              {world.title}
-            </h2>
-            <p className="world-desc text-lg md:text-xl font-sans text-[#FAFAFA] opacity-0 translate-y-6">
-              {world.desc}
+          <div className="world-content relative z-10 text-center px-6 max-w-2xl mx-auto">
+            <span className="editorial-subtitle mb-4 block">
+              World {world.num}
+            </span>
+
+            <h3 className="font-[family-name:var(--font-cormorant)] text-4xl md:text-6xl lg:text-7xl font-light tracking-[0.06em] text-[#F5F2EC] mb-6">
+              {world.name}
+            </h3>
+
+            <p className="body-large mb-10 max-w-lg mx-auto">
+              {world.description}
             </p>
+
+            {/* Notes Badges */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              {world.notes.map((note) => (
+                <span
+                  key={note}
+                  className="world-note px-4 py-1.5 text-[0.65rem] uppercase tracking-[0.25em] border border-[rgba(201,168,118,0.2)] text-[#C9A876] rounded-full"
+                >
+                  {note}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       ))}
-    </section>
+    </div>
   );
 }

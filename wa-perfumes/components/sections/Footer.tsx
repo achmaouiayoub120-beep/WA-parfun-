@@ -1,90 +1,118 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { useCursor } from '@/providers/CursorProvider';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-export function Footer() {
-  const { setCursor, resetCursor } = useCursor();
+gsap.registerPlugin(ScrollTrigger);
+
+const LINKS = [
+  { label: 'Collections', href: '/#collections' },
+  { label: 'WA Signature', href: '/#signature' },
+  { label: 'WA Elegance', href: '/#elegance' },
+  { label: 'Scent Finder', href: '/finder' },
+];
+
+export default function Footer() {
+  const footerRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      if (!titleRef.current) return;
+
+      gsap.fromTo(
+        titleRef.current,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: titleRef.current,
+            start: 'top 90%',
+            once: true,
+          },
+        }
+      );
+    }, footerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <footer className="relative bg-background text-foreground py-24 px-6 md:px-12 border-t border-border-subtle overflow-hidden">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10">
-        
-        {/* Brand */}
-        <div className="col-span-1 lg:col-span-2">
-          <Link 
-            href="/" 
-            className="inline-block mb-6"
-            onMouseEnter={() => setCursor('magnetic')}
-            onMouseLeave={resetCursor}
+    <footer ref={footerRef} className="relative border-t border-[rgba(255,255,255,0.04)]">
+      {/* Main Footer */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-10 pt-24 pb-16">
+        {/* Large Brand Title */}
+        <h2
+          ref={titleRef}
+          className="font-[family-name:var(--font-cormorant)] text-5xl md:text-7xl lg:text-8xl font-light tracking-[0.08em] text-[#F5F2EC] text-center mb-16 opacity-0"
+        >
+          WA Perfumes
+        </h2>
+
+        {/* Tagline */}
+        <p className="text-center text-[0.65rem] uppercase tracking-[0.5em] text-[#C9A876] mb-12">
+          Leave Your Signature
+        </p>
+
+        {/* Gold Divider */}
+        <div className="divider-gold max-w-xs mx-auto mb-12" />
+
+        {/* Navigation Links */}
+        <nav className="flex flex-wrap items-center justify-center gap-8 mb-12">
+          {LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-[0.7rem] uppercase tracking-[0.25em] text-[#6B6560] hover:text-[#C9A876] transition-colors duration-300"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Social Icons */}
+        <div className="flex items-center justify-center gap-6 mb-16">
+          {/* Instagram */}
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#6B6560] hover:text-[#C9A876] transition-colors duration-300"
+            aria-label="Instagram"
           >
-            <div className="relative w-64 h-32">
-              <Image 
-                src="/logo.png" 
-                alt="WA Perfumes Logo" 
-                fill 
-                className="object-contain filter brightness-0 invert opacity-80 hover:opacity-100 transition-opacity" 
-              />
-            </div>
-          </Link>
-          <p className="text-sm font-sans text-gray-400 max-w-sm leading-relaxed">
-            L'Essence de l'Excellence. Ultra-premium luxury fragrances crafted for the bold, the elegant, and the unforgettable.
-          </p>
-        </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <circle cx="12" cy="12" r="5" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+          </a>
 
-        {/* Links */}
-        <div>
-          <h4 className="text-gold text-xs uppercase tracking-widest mb-6 font-semibold">Collections</h4>
-          <ul className="space-y-4 font-sans text-sm text-gray-400">
-            <li>
-              <Link href="#signature" className="hover:text-gold transition-colors" onMouseEnter={() => setCursor('magnetic')} onMouseLeave={resetCursor}>
-                WA Signature
-              </Link>
-            </li>
-            <li>
-              <Link href="#elegance" className="hover:text-gold transition-colors" onMouseEnter={() => setCursor('magnetic')} onMouseLeave={resetCursor}>
-                WA Elegance
-              </Link>
-            </li>
-            <li>
-              <Link href="/limited" className="hover:text-gold transition-colors" onMouseEnter={() => setCursor('magnetic')} onMouseLeave={resetCursor}>
-                Limited Editions
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Contact */}
-        <div>
-          <h4 className="text-gold text-xs uppercase tracking-widest mb-6 font-semibold">Maison WA</h4>
-          <ul className="space-y-4 font-sans text-sm text-gray-400">
-            <li>
-              <p>15 Place Vendôme</p>
-              <p>75001 Paris, France</p>
-            </li>
-            <li className="pt-2">
-              <a href="mailto:concierge@waperfumes.com" className="hover:text-gold transition-colors" onMouseEnter={() => setCursor('magnetic')} onMouseLeave={resetCursor}>
-                concierge@waperfumes.com
-              </a>
-            </li>
-            <li>
-              <a href="tel:+33123456789" className="hover:text-gold transition-colors" onMouseEnter={() => setCursor('magnetic')} onMouseLeave={resetCursor}>
-                +33 1 23 45 67 89
-              </a>
-            </li>
-          </ul>
+          {/* WhatsApp */}
+          <a
+            href="https://wa.me/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#6B6560] hover:text-[#C9A876] transition-colors duration-300"
+            aria-label="WhatsApp"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.612.638l4.67-1.22A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.244 0-4.327-.73-6.013-1.966l-.42-.312-2.727.713.743-2.614-.343-.453A9.964 9.964 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+            </svg>
+          </a>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-7xl mx-auto mt-24 pt-8 border-t border-border-subtle flex flex-col md:flex-row justify-between items-center text-xs text-gray-600 uppercase tracking-widest gap-4 relative z-10">
-        <p>&copy; {new Date().getFullYear()} WA Perfumes. All rights reserved.</p>
-        <div className="flex gap-6">
-          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
-        </div>
+      <div className="border-t border-[rgba(255,255,255,0.04)] py-6">
+        <p className="text-center text-[0.6rem] uppercase tracking-[0.3em] text-[#6B6560]">
+          © {new Date().getFullYear()} WA Perfumes. All rights reserved.
+        </p>
       </div>
     </footer>
   );

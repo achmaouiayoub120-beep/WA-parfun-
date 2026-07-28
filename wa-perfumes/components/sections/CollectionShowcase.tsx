@@ -1,105 +1,134 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
-import { useCursor } from '@/providers/CursorProvider';
-import { COLLECTIONS } from '@/data/products/collections';
+import Image from 'next/image';
+import Link from 'next/link';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import MagneticButton from '@/components/ui/MagneticButton';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function CollectionShowcase() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { setCursor, resetCursor } = useCursor();
+const COLLECTIONS = [
+  {
+    name: 'WA Signature',
+    tagline: 'Dark & Bold',
+    description: 'Thirteen powerful fragrances for the modern gentleman. Deep woods, rich oud, and magnetic spice.',
+    image: '/images/collections/homme-banner.jpg',
+    href: '/#signature',
+    accent: '#C9A876',
+  },
+  {
+    name: 'WA Elegance',
+    tagline: 'Soft & Elegant',
+    description: 'Nine refined fragrances for the sophisticated woman. Lush florals, warm vanilla, and radiant musk.',
+    image: '/images/collections/femme-banner.jpg',
+    href: '/#elegance',
+    accent: '#C97B84',
+  },
+];
+
+export default function CollectionShowcase() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!sectionRef.current || !scrollContainerRef.current) return;
+    const ctx = gsap.context(() => {
+      if (!scrollRef.current || !containerRef.current) return;
 
-    const sections = gsap.utils.toArray('.collection-panel');
-    
-    // Create horizontal scroll
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      pin: true,
-      start: 'top top',
-      end: () => `+=${scrollContainerRef.current?.scrollWidth || window.innerWidth}`,
-      animation: gsap.to(sections, {
-        xPercent: -100 * (sections.length - 1),
+      const panels = gsap.utils.toArray<HTMLElement>('.collection-panel');
+      
+      gsap.to(panels, {
+        xPercent: -100 * (panels.length - 1),
         ease: 'none',
-      }),
-      scrub: 1,
-    });
+        scrollTrigger: {
+          trigger: containerRef.current,
+          pin: true,
+          scrub: 1,
+          end: () => `+=${containerRef.current!.offsetWidth}`,
+          anticipatePin: 1,
+        },
+      });
 
-    // Parallax effect on images
-    sections.forEach((s) => {
-      const img = (s as HTMLElement).querySelector('.parallax-img');
-      if (img) {
-        gsap.to(img, {
-          xPercent: 20,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: s as HTMLElement,
-            containerAnimation: gsap.getById('horizontalScroll') || undefined,
-            start: 'left right',
-            end: 'right left',
-            scrub: true,
+      // Animate content within each panel
+      panels.forEach((panel) => {
+        const content = panel.querySelector('.panel-content');
+        gsap.fromTo(
+          content,
+          { opacity: 0, x: 60 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'left 80%',
+              end: 'left 30%',
+              scrub: 0.8,
+            },
           }
-        });
-      }
-    });
+        );
+      });
+    }, containerRef);
 
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full h-screen overflow-hidden bg-[#050505]">
-      <div 
-        ref={scrollContainerRef}
-        className="flex w-[200vw] h-full"
-      >
-        {COLLECTIONS.map((collection) => (
-          <div 
-            key={collection.id}
-            className="collection-panel relative w-[100vw] h-full flex items-center justify-center overflow-hidden"
-          >
-            {/* Background Parallax Image */}
-            <div className="absolute inset-0 z-0">
-              <div 
-                className="parallax-img absolute inset-0 -left-[20%] w-[140%] h-full bg-cover bg-center opacity-40 scale-110"
-                style={{ backgroundImage: `url(${collection.bannerImage})` }}
-              />
-              <div className="absolute inset-0 bg-[#050505] opacity-60 mix-blend-multiply" />
-            </div>
-
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-4xl">
-              <span className="text-[#D4AF37] tracking-[0.3em] uppercase text-sm mb-6">
-                {collection.tagline}
-              </span>
-              <h2 className="text-6xl md:text-8xl font-serif text-[#FAFAFA] mb-8">
-                {collection.name}
-              </h2>
-              <p className="text-lg text-gray-300 font-sans max-w-2xl mx-auto mb-12 opacity-80 leading-relaxed">
-                {collection.description}
-              </p>
-              
-              <button 
-                className="group relative px-8 py-4 bg-transparent overflow-hidden border border-[#D4AF37]"
-                onMouseEnter={() => setCursor('magnetic')}
-                onMouseLeave={resetCursor}
-              >
-                <div className="absolute inset-0 bg-[#D4AF37] transition-transform duration-500 origin-left scale-x-0 group-hover:scale-x-100" />
-                <span className="relative z-10 text-[#D4AF37] group-hover:text-[#050505] font-sans text-sm tracking-widest uppercase transition-colors duration-500 mix-blend-difference">
-                  Explore {collection.gender === 'homme' ? "Men's" : "Women's"}
-                </span>
-              </button>
-            </div>
-          </div>
-        ))}
+    <div className="py-20">
+      {/* Section Header */}
+      <div className="text-center px-6 mb-16">
+        <p className="editorial-subtitle mb-4">Our Collections</p>
+        <h2 className="heading-section text-[#F5F2EC]">Two Worlds</h2>
+        <div className="w-16 h-[1px] bg-[#C9A876] mx-auto mt-8 opacity-40" />
       </div>
-    </section>
+
+      {/* Horizontal Scroll Container */}
+      <div ref={containerRef} className="overflow-hidden">
+        <div ref={scrollRef} className="flex" style={{ width: `${COLLECTIONS.length * 100}vw` }}>
+          {COLLECTIONS.map((col) => (
+            <div
+              key={col.name}
+              className="collection-panel w-screen h-[80vh] relative flex items-center shrink-0"
+            >
+              {/* Background Image */}
+              <div className="absolute inset-0">
+                <Image
+                  src={col.image}
+                  alt={col.name}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  quality={80}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" />
+              </div>
+
+              {/* Content */}
+              <div className="panel-content relative z-10 px-10 md:px-20 max-w-xl">
+                <p className="text-[0.65rem] uppercase tracking-[0.35em] mb-4" style={{ color: col.accent }}>
+                  {col.tagline}
+                </p>
+
+                <h3 className="font-[family-name:var(--font-cormorant)] text-4xl md:text-6xl font-light tracking-[0.06em] text-[#F5F2EC] mb-6">
+                  {col.name}
+                </h3>
+
+                <p className="body-large mb-10">
+                  {col.description}
+                </p>
+
+                <Link href={col.href}>
+                  <MagneticButton className="px-8 py-3 border border-[rgba(201,168,118,0.25)] text-[0.65rem] uppercase tracking-[0.3em] text-[#C9A876] hover:bg-[rgba(201,168,118,0.06)] transition-colors duration-500">
+                    Explore
+                  </MagneticButton>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

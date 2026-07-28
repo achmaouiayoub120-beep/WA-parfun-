@@ -1,35 +1,57 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 
 // Providers
-import { LenisProvider } from "@/providers/LenisProvider";
+import LenisProvider from "@/providers/LenisProvider";
 import { CursorProvider } from "@/providers/CursorProvider";
-import { AudioProvider } from "@/providers/AudioProvider";
 
-// UI Components
-import { CustomCursor } from "@/components/ui/CustomCursor";
-import { Navigation } from "@/components/ui/Navigation";
-import { PageTransition } from "@/components/animations/PageTransition";
-import { CartSlider } from "@/components/ui/CartSlider";
-import { ThemeProvider } from "@/providers/ThemeProvider";
+// UI Components — client components imported directly
+import Navigation from "@/components/ui/Navigation";
+import CartSlider from "@/components/ui/CartSlider";
+import LuxuryCursor from "@/components/ui/LuxuryCursor";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-cormorant",
+  display: "swap",
 });
 
 const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "WA Perfumes | Ultra-Premium Luxury Fragrances",
-  description: "Experience the essence of excellence. WA Perfumes offers ultra-premium luxury fragrances inspired by the world's most iconic scents.",
-  keywords: "luxury perfume, premium fragrances, WA Perfumes, designer scents",
+  title: {
+    default: "WA Perfumes | Ultra-Premium Luxury Fragrances",
+    template: "%s | WA Perfumes",
+  },
+  description:
+    "Experience the essence of excellence. WA Perfumes offers ultra-premium luxury fragrances — WA Signature for men, WA Elegance for women. Leave Your Signature.",
+  keywords: [
+    "luxury perfume",
+    "premium fragrances",
+    "WA Perfumes",
+    "designer scents",
+    "Morocco",
+    "parfum de luxe",
+  ],
+  metadataBase: new URL("https://wa-parfun.vercel.app"),
+  openGraph: {
+    title: "WA Perfumes | Leave Your Signature",
+    description: "Ultra-premium luxury fragrances inspired by the world's most iconic scents.",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0A0A0A",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -38,21 +60,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${inter.variable}`} suppressHydrationWarning>
-      <body className="antialiased min-h-screen bg-background text-foreground selection:bg-gold selection:text-foreground" suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <CursorProvider>
-            <AudioProvider>
-              <LenisProvider>
-                <Navigation />
-                <CartSlider />
-                <PageTransition>
-                  {children}
-                </PageTransition>
-              </LenisProvider>
-            </AudioProvider>
-          </CursorProvider>
-        </ThemeProvider>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
+      <body
+        className="antialiased min-h-screen bg-[#0A0A0A] text-[#F5F2EC] overflow-x-hidden"
+        suppressHydrationWarning
+      >
+        <CursorProvider>
+          <LenisProvider>
+            <LuxuryCursor />
+            <Navigation />
+            <CartSlider />
+            <main>{children}</main>
+          </LenisProvider>
+        </CursorProvider>
+
+        {/* Film Grain Overlay — pure CSS, zero JS cost */}
+        <div className="film-grain" aria-hidden="true" />
       </body>
     </html>
   );

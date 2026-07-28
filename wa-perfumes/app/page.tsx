@@ -1,23 +1,51 @@
 'use client';
 
-import { Preloader } from '@/components/ui/Preloader';
-import { HeroSection } from '@/components/hero/HeroSection';
-import { ScrollStorytelling } from '@/components/sections/ScrollStorytelling';
-import { CollectionShowcase } from '@/components/sections/CollectionShowcase';
-import { MenCollection } from '@/components/sections/MenCollection';
-import { WomenCollection } from '@/components/sections/WomenCollection';
-import { Footer } from '@/components/sections/Footer';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
 
-export default function Home() {
+// Eagerly loaded components (above the fold)
+import HeroSection from '@/components/hero/HeroSection';
+const Preloader = dynamic(() => import('@/components/ui/Preloader'), { ssr: false });
+
+// Lazy loaded components (below the fold)
+const ScrollStorytelling = dynamic(() => import('@/components/sections/ScrollStorytelling'), { ssr: false });
+const CollectionShowcase = dynamic(() => import('@/components/sections/CollectionShowcase'), { ssr: false });
+const MenCollection = dynamic(() => import('@/components/sections/MenCollection'), { ssr: false });
+const WomenCollection = dynamic(() => import('@/components/sections/WomenCollection'), { ssr: false });
+const Footer = dynamic(() => import('@/components/sections/Footer'), { ssr: false });
+
+export default function HomePage() {
+  const [preloaderDone, setPreloaderDone] = useState(false);
+
   return (
-    <main className="relative flex flex-col bg-[#050505]">
-      <Preloader />
+    <>
+      <Preloader onComplete={() => setPreloaderDone(true)} />
+
+      {/* Hero — always rendered, animations trigger after preloader */}
       <HeroSection />
-      <ScrollStorytelling />
-      <CollectionShowcase />
-      <MenCollection />
-      <WomenCollection />
+
+      {/* Olfactory Worlds — scroll storytelling */}
+      <section id="story">
+        <ScrollStorytelling />
+      </section>
+
+      {/* Collections Showcase — horizontal scroll */}
+      <section id="collections">
+        <CollectionShowcase />
+      </section>
+
+      {/* WA Signature — Men's Collection */}
+      <section id="signature">
+        <MenCollection />
+      </section>
+
+      {/* WA Elegance — Women's Collection */}
+      <section id="elegance">
+        <WomenCollection />
+      </section>
+
+      {/* Footer */}
       <Footer />
-    </main>
+    </>
   );
 }

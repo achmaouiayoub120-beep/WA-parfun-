@@ -1,128 +1,141 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Product } from '@/data/products/men'; // shared type
-import { useCursor } from '@/providers/CursorProvider';
-import { AddToCartButton } from '@/components/ui/AddToCartButton';
 
-interface ProductCardProps {
-  product: Product;
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  collection: 'signature' | 'elegance';
+  inspirationNote?: string;
+  topNotes?: string[];
+  [key: string]: unknown;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product }: { product: Product }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const { setCursor, resetCursor } = useCursor();
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [spotX, setSpotX] = useState(50);
+  const [spotY, setSpotY] = useState(50);
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Mouse tracking for 3D tilt and light effect
-  const mouseX = useMotionValue(0.5);
-  const mouseY = useMotionValue(0.5);
-  
-  // Smooth the mouse values
-  const springConfig = { damping: 20, stiffness: 300, mass: 0.5 };
-  const smoothX = useSpring(mouseX, springConfig);
-  const smoothY = useSpring(mouseY, springConfig);
-
-  // Map mouse position to rotation (-10 to 10 degrees)
-  const rotateX = useTransform(smoothY, [0, 1], [10, -10]);
-  const rotateY = useTransform(smoothX, [0, 1], [-10, 10]);
-
-  // Light effect template
-  const lightEffect = useMotionTemplate`radial-gradient(
-    circle at ${useTransform(mouseX, [0, 1], [0, 100])}% ${useTransform(mouseY, [0, 1], [0, 100])}%,
-    rgba(212, 175, 55, 0.15),
-    transparent 80%
-  )`;
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    mouseX.set(x);
-    mouseY.set(y);
+    const { left, top, width, height } = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width;
+    const y = (e.clientY - top) / height;
+
+    setRotateX((0.5 - y) * 8);
+    setRotateY((x - 0.5) * 8);
+    setSpotX(x * 100);
+    setSpotY(y * 100);
   };
 
   const handleMouseLeave = () => {
-    mouseX.set(0.5);
-    mouseY.set(0.5);
-    resetCursor();
+    setRotateX(0);
+    setRotateY(0);
+    setIsHovered(false);
   };
 
   return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformStyle: 'preserve-3d',
-      }}
-      className="group relative w-full aspect-[3/4] cursor-none perspective-1000"
-    >
-      {/* Dynamic Light overlay */}
-      <motion.div 
-        className="absolute inset-0 z-20 pointer-events-none rounded-sm transition-opacity duration-300 opacity-0 group-hover:opacity-100 mix-blend-screen"
-        style={{ background: lightEffect }}
-      />
-      
-      {/* Main Card Container */}
-      <div className="absolute inset-0 glass-gold overflow-hidden rounded-sm transition-transform duration-500 transform-gpu bg-[#050505]/40 group-hover:bg-[#050505]/60 flex flex-col">
-        
-        {/* Clickable Area for Product Details */}
-        <Link 
-          href={`/product/${product.id}`} 
-          className="flex-1 relative block w-full"
-          onMouseEnter={() => setCursor('product', 'Discover')}
-          onMouseLeave={resetCursor}
-        >
-          {/* Product Image */}
-          <div className="absolute inset-0 p-8 transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-4">
-            <div className="relative w-full h-full">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)]"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </div>
-          </div>
-        </Link>
+    <Link href={`/product/${product.id}`} className="block group">
+      <div
+        ref={cardRef}
+        className="relative overflow-hidden bg-[#141414] border border-[rgba(255,255,255,0.04)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{
+          transform: `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+          transformStyle: 'preserve-3d',
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Gold spotlight on hover */}
+        <div
+          className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{
+            background: `radial-gradient(circle at ${spotX}% ${spotY}%, rgba(201,168,118,0.08) 0%, transparent 60%)`,
+          }}
+        />
 
-        {/* Content Overlay */}
-        <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end translate-y-14 transition-transform duration-500 ease-out group-hover:translate-y-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent">
-          
-          <div className="flex justify-between items-end mb-4">
-            <div>
-              <p className="text-[#D4AF37] text-[10px] tracking-widest uppercase mb-1">
-                {product.number} — {product.fragranceFamily}
-              </p>
-              <h3 className="text-[#FAFAFA] font-serif text-2xl mb-1">
-                {product.name}
-              </h3>
-              <p className="text-gray-400 text-xs font-sans">
-                Inspired by {product.inspiredBy}
-              </p>
-            </div>
-            
-            <div className="text-right">
-              <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">
-                {product.volume}
-              </p>
-            </div>
-          </div>
+        {/* Hover border glow */}
+        <div className="absolute inset-0 z-10 border border-[rgba(201,168,118,0)] group-hover:border-[rgba(201,168,118,0.15)] transition-colors duration-500 pointer-events-none" />
 
-          {/* Add to Cart Button (Only visible on hover) */}
-          <div className="w-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-            <AddToCartButton product={product} className="w-full text-xs py-3" />
-          </div>
+        {/* Collection Badge */}
+        <div className="absolute top-4 left-4 z-20">
+          <span
+            className="text-[0.55rem] uppercase tracking-[0.25em] px-2.5 py-1 backdrop-blur-sm rounded-sm"
+            style={{
+              color: product.collection === 'signature' ? '#C9A876' : '#C97B84',
+              background:
+                product.collection === 'signature'
+                  ? 'rgba(201,168,118,0.1)'
+                  : 'rgba(201,123,132,0.1)',
+              border: `1px solid ${
+                product.collection === 'signature'
+                  ? 'rgba(201,168,118,0.15)'
+                  : 'rgba(201,123,132,0.15)'
+              }`,
+            }}
+          >
+            {product.collection === 'signature' ? 'Signature' : 'Elegance'}
+          </span>
+        </div>
 
+        {/* Product Image */}
+        <div className="relative aspect-[3/4] overflow-hidden">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            quality={80}
+          />
+
+          {/* Bottom gradient */}
+          <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#141414] to-transparent" />
+
+          {/* Notes on hover */}
+          {product.topNotes && product.topNotes.length > 0 && (
+            <div
+              className={`absolute bottom-4 left-4 right-4 z-20 flex gap-2 flex-wrap transition-all duration-500 ${
+                isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+            >
+              {product.topNotes.slice(0, 3).map((note) => (
+                <span
+                  key={note}
+                  className="text-[0.55rem] uppercase tracking-[0.2em] px-2 py-1 bg-[rgba(10,10,10,0.7)] backdrop-blur-sm text-[#C9A876] border border-[rgba(201,168,118,0.15)] rounded-sm"
+                >
+                  {note}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="p-5">
+          <h3 className="font-[family-name:var(--font-cormorant)] text-lg tracking-[0.04em] text-[#F5F2EC] mb-1 group-hover:text-[#C9A876] transition-colors duration-300">
+            {product.name}
+          </h3>
+
+          {product.inspirationNote && (
+            <p className="text-[0.65rem] text-[#6B6560] mb-3 italic">
+              {product.inspirationNote}
+            </p>
+          )}
+
+          <p className="text-sm text-[#C9A876] font-[family-name:var(--font-sans)] tracking-wider">
+            {product.price} DH
+          </p>
         </div>
       </div>
-    </motion.div>
+    </Link>
   );
 }

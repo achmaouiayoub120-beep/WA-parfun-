@@ -1,81 +1,162 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { useCursor } from '@/providers/CursorProvider';
-import { Scene } from '@/components/3d/Scene';
+import Image from 'next/image';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import MagneticButton from '@/components/ui/MagneticButton';
 
-export function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { setCursor, resetCursor } = useCursor();
+gsap.registerPlugin(ScrollTrigger);
+
+export default function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-    
-    // Simple parallax effect on mouse move
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const x = (clientX / window.innerWidth - 0.5) * 20;
-      const y = (clientY / window.innerHeight - 0.5) * 20;
-      
-      gsap.to('.hero-title', { x: x * -1.5, y: y * -1.5, duration: 1, ease: 'power2.out' });
-      gsap.to('.hero-bg', { x: x * 0.5, y: y * 0.5, duration: 1, ease: 'power2.out' });
-    };
+    const ctx = gsap.context(() => {
+      // Hero entry animation
+      const tl = gsap.timeline({ delay: 2.8 }); // After preloader
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+      tl.fromTo(
+        overlayRef.current,
+        { opacity: 1 },
+        { opacity: 0, duration: 1.5, ease: 'power2.out' },
+        0
+      );
+
+      tl.fromTo(
+        imageRef.current,
+        { scale: 1.2, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1.8, ease: 'power3.out' },
+        0.2
+      );
+
+      // Split title into characters for staggered reveal
+      if (titleRef.current) {
+        const text = titleRef.current.textContent || '';
+        titleRef.current.innerHTML = text
+          .split('')
+          .map((char) =>
+            char === ' '
+              ? ' '
+              : `<span class="inline-block opacity-0 translate-y-[60px]">${char}</span>`
+          )
+          .join('');
+
+        const chars = titleRef.current.querySelectorAll('span');
+        tl.to(
+          chars,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.03,
+            ease: 'power3.out',
+          },
+          0.8
+        );
+      }
+
+      tl.fromTo(
+        subtitleRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
+        1.4
+      );
+
+      tl.fromTo(
+        ctaRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        1.8
+      );
+
+      // Parallax on scroll
+      gsap.to(imageRef.current, {
+        yPercent: 20,
+        scale: 1.05,
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
+
+      gsap.to(titleRef.current, {
+        yPercent: -30,
+        opacity: 0,
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: '60% top',
+          scrub: 1,
+        },
+      });
+    });
+
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section 
-      ref={containerRef} 
-      className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-[#050505]"
+    <section
+      ref={sectionRef}
+      className="relative h-screen overflow-hidden flex items-center justify-center"
     >
-      {/* Background Image/Video */}
-      <div 
-        className="hero-bg absolute inset-0 z-0 scale-110 opacity-60"
-        style={{
-          backgroundImage: 'url(/images/hero/hero-bg.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      />
-      
-      {/* 3D WebGL Scene */}
-      <Scene />
+      {/* Background Image with Parallax */}
+      <div ref={imageRef} className="absolute inset-0 opacity-0">
+        <Image
+          src="/images/hero/hero-bg.jpg"
+          alt="WA Perfumes luxury fragrance"
+          fill
+          className="object-cover"
+          sizes="100vw"
+          priority
+          quality={85}
+        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/70 via-[#0A0A0A]/40 to-[#0A0A0A]" />
+      </div>
 
-      {/* Golden Overlay Gradient */}
-      <div className="absolute inset-0 z-1 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
+      {/* Initial black overlay for reveal */}
+      <div ref={overlayRef} className="absolute inset-0 bg-[#0A0A0A] z-10" />
 
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center text-center mt-[40vh] md:mt-[30vh]">
-        <h1 className="hero-title text-5xl md:text-8xl font-serif mb-6 text-gold tracking-tight mix-blend-screen">
-          Leave Your Signature.
-        </h1>
-        
-        <p className="hero-title text-sm md:text-base font-sans tracking-[0.2em] text-foreground opacity-80 uppercase max-w-xl mx-auto mb-12">
-          Luxury Inspired Fragrances crafted for unforgettable personalities.
+      {/* Hero Content */}
+      <div className="relative z-20 text-center px-6 max-w-5xl mx-auto">
+        {/* Eyebrow */}
+        <p className="editorial-subtitle mb-8 opacity-0" ref={subtitleRef}>
+          Ultra-Premium Luxury Fragrances
         </p>
 
-        <div className="flex gap-6 items-center">
-          <button 
-            className="group relative px-8 py-4 bg-transparent overflow-hidden border border-gold"
-            onMouseEnter={() => setCursor('magnetic')}
-            onMouseLeave={resetCursor}
+        {/* Main Title */}
+        <h1
+          ref={titleRef}
+          className="heading-display text-[#F5F2EC] mb-8"
+        >
+          Leave Your Signature
+        </h1>
+
+        {/* CTA */}
+        <div ref={ctaRef} className="opacity-0">
+          <MagneticButton
+            className="px-10 py-4 border border-[rgba(201,168,118,0.3)] rounded-none text-[0.7rem] uppercase tracking-[0.3em] text-[#C9A876] hover:bg-[rgba(201,168,118,0.08)] transition-colors duration-500"
           >
-            <div className="absolute inset-0 bg-gold transition-transform duration-500 origin-left scale-x-0 group-hover:scale-x-100" />
-            <span className="relative z-10 text-gold group-hover:text-background font-sans text-sm tracking-widest uppercase transition-colors duration-500">
-              Discover Collection
-            </span>
-          </button>
+            Explore Collections
+          </MagneticButton>
         </div>
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center pointer-events-none">
-        <span className="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-4 opacity-70">Scroll to explore</span>
-        <div className="w-[1px] h-16 border-l border-gold/20 overflow-hidden">
-          <div className="w-full h-1/2 bg-gold animate-slide-down" />
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3">
+        <span className="text-[0.55rem] uppercase tracking-[0.4em] text-[#6B6560]">
+          Scroll
+        </span>
+        <div className="w-[1px] h-8 bg-[rgba(201,168,118,0.2)] relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-[#C9A876] animate-[slideDown_2s_ease-in-out_infinite]" />
         </div>
       </div>
     </section>

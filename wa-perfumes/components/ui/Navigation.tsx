@@ -1,165 +1,181 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useCursor } from '@/providers/CursorProvider';
-import { CartIcon } from '@/components/ui/CartIcon';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { gsap } from 'gsap';
+import { useUIStore } from '@/store/useUIStore';
+import { useCartStore } from '@/store/useCartStore';
 
-const navLinks = [
-  { name: 'Collections', href: '#collections' },
-  { name: 'WA Signature', href: '/#signature' },
-  { name: 'WA Elegance', href: '/#elegance' },
-  { name: 'Perfume Finder', href: '/finder' },
-  { name: 'Maison WA', href: '/about' },
+const NAV_LINKS = [
+  { label: 'Collections', href: '/#collections' },
+  { label: 'WA Signature', href: '/#signature' },
+  { label: 'WA Elegance', href: '/#elegance' },
+  { label: 'Our Story', href: '/#story' },
 ];
 
-export function Navigation() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const { setCursor, resetCursor } = useCursor();
+export default function Navigation() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuLinksRef = useRef<HTMLDivElement>(null);
+  
+  const openCart = useUIStore((s) => s.openCart);
+  const cartCount = useCartStore((s) => s.getCartCount());
 
   useEffect(() => {
+    setMounted(true);
+    
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 80);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Animate menu open/close
+  useEffect(() => {
+    if (!menuRef.current || !menuLinksRef.current) return;
+
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+      const links = menuLinksRef.current.querySelectorAll('.menu-link');
+      
+      gsap.to(menuRef.current, {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        duration: 0.8,
+        ease: 'power4.inOut',
+      });
+      gsap.fromTo(links, 
+        { y: 80, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, delay: 0.4, ease: 'power3.out' }
+      );
+    } else {
+      document.body.style.overflow = '';
+      gsap.to(menuRef.current, {
+        clipPath: 'inset(0% 0% 100% 0%)',
+        duration: 0.6,
+        ease: 'power3.inOut',
+      });
+    }
+  }, [menuOpen]);
+
   return (
     <>
-      {/* Header Bar */}
-      <header 
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-6 transition-all duration-500 ${
-          isScrolled ? 'bg-background/80 backdrop-blur-md border-b border-border-subtle' : 'bg-transparent'
+      {/* Fixed Header */}
+      <header
+        ref={headerRef}
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
+          scrolled
+            ? 'py-3 bg-[rgba(10,10,10,0.85)] backdrop-blur-xl border-b border-[rgba(201,168,118,0.08)]'
+            : 'py-6 bg-transparent'
         }`}
       >
-        <Link 
-          href="/" 
-          className="relative z-50 flex items-center justify-center mix-blend-difference"
-          onMouseEnter={() => setCursor('magnetic')}
-          onMouseLeave={resetCursor}
-        >
-          <div className="relative w-48 h-24 md:w-64 md:h-32">
-            <Image 
-              src="/logo.png" 
-              alt="WA Perfumes Logo" 
-              fill 
-              className="object-contain filter brightness-0 invert" 
+        <div className="max-w-[1440px] mx-auto px-6 md:px-10 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="relative z-[101] flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="WA Perfumes"
+              width={40}
+              height={40}
+              className={`transition-all duration-500 ${scrolled ? 'w-8 h-8' : 'w-10 h-10'}`}
               priority
             />
-          </div>
-        </Link>
+            <span className="hidden sm:block font-[family-name:var(--font-cormorant)] text-lg tracking-[0.2em] uppercase text-[#F5F2EC]">
+              WA Perfumes
+            </span>
+          </Link>
 
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <CartIcon />
-          
-          {/* Hamburger Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="relative z-50 w-12 h-12 flex flex-col items-center justify-center gap-2 group mix-blend-difference"
-            onMouseEnter={() => setCursor('magnetic')}
-            onMouseLeave={resetCursor}
-          >
-            <span 
-              className={`w-8 h-[1px] bg-gold transition-all duration-500 origin-right ${
-                isOpen ? '-rotate-45 -translate-y-[2px] w-8' : 'w-8'
-              }`} 
-            />
-            <span 
-              className={`h-[1px] bg-gold transition-all duration-500 origin-right ${
-                isOpen ? 'rotate-45 translate-y-[2px] w-8' : 'w-6 group-hover:w-8'
-              }`} 
-            />
-          </button>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-10">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-[0.7rem] uppercase tracking-[0.25em] text-[#9A9590] hover:text-[#C9A876] transition-colors duration-300 font-[family-name:var(--font-sans)]"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-5 relative z-[101]">
+            {/* Cart Button */}
+            <button
+              onClick={openCart}
+              className="relative text-[#9A9590] hover:text-[#C9A876] transition-colors duration-300"
+              aria-label="Open cart"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
+              {mounted && cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#C9A876] text-[#0A0A0A] text-[9px] font-semibold rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            {/* Menu Toggle */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex flex-col gap-[5px] items-end group"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            >
+              <span
+                className={`block h-[1px] bg-[#F5F2EC] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  menuOpen ? 'w-6 rotate-45 translate-y-[3px]' : 'w-6 group-hover:w-8'
+                }`}
+              />
+              <span
+                className={`block h-[1px] bg-[#F5F2EC] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  menuOpen ? 'w-6 -rotate-45 -translate-y-[3px]' : 'w-4 group-hover:w-8'
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Fullscreen Menu Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ clipPath: 'inset(0 0 100% 0)' }}
-            animate={{ clipPath: 'inset(0 0 0% 0)' }}
-            exit={{ clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-40 bg-background flex flex-col justify-center px-12 md:px-32"
-          >
-            {/* Background Texture Overlay */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'url(/images/textures/noise.png)', backgroundSize: '200px' }} />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
-              
-              {/* Navigation Links */}
-              <nav className="flex flex-col gap-6">
-                <span className="text-gold text-xs uppercase tracking-[0.3em] mb-4 opacity-70">
-                  Menu
-                </span>
-                
-                {navLinks.map((link, i) => (
-                  <div key={link.name} className="overflow-hidden">
-                    <motion.div
-                      initial={{ y: '100%' }}
-                      animate={{ y: '0%' }}
-                      exit={{ y: '-100%' }}
-                      transition={{ duration: 0.8, delay: 0.2 + i * 0.1, ease: [0.76, 0, 0.24, 1] }}
-                    >
-                      <Link 
-                        href={link.href}
-                        onClick={() => setIsOpen(false)}
-                        className="text-5xl md:text-7xl font-serif text-foreground hover:text-gold transition-colors duration-500 flex items-center gap-4 group"
-                        onMouseEnter={() => setCursor('spotlight')}
-                        onMouseLeave={resetCursor}
-                      >
-                        <span className="text-sm font-sans opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-                          0{i + 1}
-                        </span>
-                        {link.name}
-                      </Link>
-                    </motion.div>
-                  </div>
-                ))}
-              </nav>
-
-              {/* Sidebar Info */}
-              <div className="flex flex-col justify-end gap-12 mt-16 md:mt-0">
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
+      <div
+        ref={menuRef}
+        className="fixed inset-0 z-[99] bg-[#0A0A0A]"
+        style={{ clipPath: 'inset(0% 0% 100% 0%)' }}
+      >
+        <div className="h-full flex flex-col items-center justify-center px-6">
+          <div ref={menuLinksRef} className="flex flex-col items-center gap-6 md:gap-8">
+            {[
+              { label: 'Home', href: '/' },
+              ...NAV_LINKS,
+              { label: 'Scent Finder', href: '/finder' },
+            ].map((link) => (
+              <div key={link.href} className="overflow-hidden">
+                <Link
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="menu-link block font-[family-name:var(--font-cormorant)] text-4xl md:text-6xl lg:text-7xl font-light tracking-[0.08em] text-[#F5F2EC] hover:text-[#C9A876] transition-colors duration-300 uppercase"
                 >
-                  <span className="text-gold text-xs uppercase tracking-[0.3em] block mb-4">
-                    Visit Us
-                  </span>
-                  <p className="text-gray-400 font-sans leading-relaxed">
-                    15 Place Vendôme<br />
-                    75001 Paris, France
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.8, delay: 0.9 }}
-                >
-                  <span className="text-gold text-xs uppercase tracking-[0.3em] block mb-4">
-                    Contact
-                  </span>
-                  <a href="mailto:concierge@waperfumes.com" className="text-foreground hover:text-gold transition-colors">
-                    concierge@waperfumes.com
-                  </a>
-                </motion.div>
+                  {link.label}
+                </Link>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            ))}
+          </div>
+
+          {/* Menu Footer */}
+          <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+            <p className="text-[0.65rem] uppercase tracking-[0.4em] text-[#6B6560]">
+              Leave Your Signature
+            </p>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
