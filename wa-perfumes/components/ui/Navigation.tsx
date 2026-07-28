@@ -79,9 +79,9 @@ export default function Navigation() {
             <Image
               src="/logo.png"
               alt="WA Perfumes"
-              width={120}
-              height={60}
-              className={`transition-all duration-500 object-contain ${scrolled ? 'w-24 h-12' : 'w-32 h-16'}`}
+              width={200}
+              height={100}
+              className={`transition-all duration-500 object-contain ${scrolled ? 'w-32 h-16' : 'w-48 h-24'}`}
               priority
             />
           </Link>
