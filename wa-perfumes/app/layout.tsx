@@ -7,6 +7,7 @@ import LenisProvider from "@/providers/LenisProvider";
 // UI Components — client components imported directly
 import Navigation from "@/components/ui/Navigation";
 import CartSlider from "@/components/ui/CartSlider";
+import FloatingInstagram from "@/components/ui/FloatingInstagram";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -69,6 +70,7 @@ export default function RootLayout({
         <LenisProvider>
           <Navigation />
           <CartSlider />
+          <FloatingInstagram />
           <main>{children}</main>
         </LenisProvider>
 
