@@ -21,23 +21,7 @@ export default function Footer() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (!titleRef.current) return;
-
-      gsap.fromTo(
-        titleRef.current,
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: 'top 90%',
-            once: true,
-          },
-        }
-      );
+      // Background or other animations can go here if needed
     }, footerRef);
 
     return () => ctx.revert();
@@ -48,7 +32,7 @@ export default function Footer() {
       {/* Main Footer */}
       <div className="max-w-[1440px] mx-auto px-6 md:px-10 pt-24 pb-16">
         {/* Large Brand Title */}
-        <div ref={titleRef} className="flex justify-center mb-16 opacity-0">
+        <div className="flex justify-center mb-16">
           <Image
             src="/logo.png"
             alt="WA Perfumes Logo"
