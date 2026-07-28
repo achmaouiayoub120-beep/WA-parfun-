@@ -87,21 +87,21 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <div className="space-y-6">
               <div>
                 <span className="text-gray-500 uppercase tracking-widest text-[10px] block mb-2">Top Notes</span>
-                <p className="text-foreground font-sans">{product.notes?.top?.join(', ') || 'N/A'}</p>
+                <p className="text-foreground font-sans">{product.topNotes?.join(', ') || 'N/A'}</p>
               </div>
               
               <div className="w-full h-[1px] bg-gradient-to-r from-border-subtle to-transparent" />
               
               <div>
                 <span className="text-gray-500 uppercase tracking-widest text-[10px] block mb-2">Heart Notes</span>
-                <p className="text-foreground font-sans">{product.notes?.heart?.join(', ') || 'N/A'}</p>
+                <p className="text-foreground font-sans">{product.heartNotes?.join(', ') || 'N/A'}</p>
               </div>
 
               <div className="w-full h-[1px] bg-gradient-to-r from-border-subtle to-transparent" />
               
               <div>
                 <span className="text-gray-500 uppercase tracking-widest text-[10px] block mb-2">Base Notes</span>
-                <p className="text-foreground font-sans">{product.notes?.base?.join(', ') || 'N/A'}</p>
+                <p className="text-foreground font-sans">{product.baseNotes?.join(', ') || 'N/A'}</p>
               </div>
             </div>
           </div>
