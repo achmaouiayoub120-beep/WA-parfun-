@@ -1,5 +1,5 @@
-// ============================================================================
-// WA PERFUMES — Women's Collection (WA Elegance)
+﻿// ============================================================================
+// WA PERFUMES â€” Women's Collection (WA Elegance)
 // ============================================================================
 // 9 luxury fragrances inspired by iconic feminine scents.
 // IMPORTANT: WA Perfumes sells fragrances INSPIRED BY these iconic scents.
@@ -19,7 +19,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'Burberry Her Elixir',
     description:
       'A sumptuous elixir of dark berries and intoxicating jasmine. Rich blackcurrant cascades into warm amber and sensual musk, creating a trail that is both playful and profoundly seductive. For the woman who leaves an unforgettable impression.',
-    price: 880,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-01.jpg',
@@ -46,7 +46,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'Light Blue Eau Intense',
     description:
       'Mediterranean elegance intensified. Sparkling Granny Smith apple and bright lemon dance with delicate jasmine and white rose, resting on a bed of warm musks and creamy cedarwood. Like a sun-kissed Italian coastline.',
-    price: 780,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-02.jpg',
@@ -72,7 +72,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'Vanilla 28',
     description:
       'Pure vanilla obsession. Lush Madagascar vanilla is layered with brown sugar, warm tonka bean, and soft musk for a scent that is both indulgent and intimately comforting. A dessert for the senses, crafted for the woman who savors every moment.',
-    price: 950,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-03.jpg',
@@ -99,7 +99,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'L\'Interdit Rouge',
     description:
       'Forbidden beauty in crimson. A daring blend of fiery ginger and dark tuberose, laced with smoky vetiver and addictive oud. For the woman who breaks conventions and embraces the thrill of the forbidden.',
-    price: 920,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-04.jpg',
@@ -123,10 +123,10 @@ export const WOMEN_PRODUCTS: Product[] = [
     number: '05',
     collection: 'elegance',
     gender: 'femme',
-    inspiredBy: 'L\'Impératrice',
+    inspiredBy: 'L\'ImpÃ©ratrice',
     description:
       'Regal freshness with a playful heart. Watermelon and kiwi burst open to reveal a bouquet of pink cyclamen and jasmine, settling into a warm base of musk and sandalwood. A fragrance fit for an empress.',
-    price: 750,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-05.jpg',
@@ -152,7 +152,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'Prada Paradoxe Intense',
     description:
       'A paradox of contrasts. Ethereal neroli clashes with dark amber and addictive vanilla in a composition that defies convention. Clean yet sensual, bright yet deep. For the woman who contains multitudes.',
-    price: 980,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-06.jpg',
@@ -179,7 +179,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'The One',
     description:
       'Timeless femininity defined. Velvety peach and lychee open into a golden heart of lily and jasmine, deepening into warm vetiver and vanilla. A classic that transcends trends and speaks to the eternal allure of womanhood.',
-    price: 850,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-07.jpg',
@@ -206,7 +206,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'Coco Vanille',
     description:
       'A tropical indulgence. Creamy coconut milk swirls with rich Tahitian vanilla and warm sandalwood, creating a scent that is both exotic and comforting. Like a luxurious escape to a sun-drenched island paradise.',
-    price: 890,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-08.jpg',
@@ -232,7 +232,7 @@ export const WOMEN_PRODUCTS: Product[] = [
     inspiredBy: 'Coco Mademoiselle Intense',
     description:
       'Parisian chic amplified. Bright Sicilian orange and fresh patchouli are intensified with rich Bourbon vanilla and warm tonka bean. A fragrance of effortless sophistication that captures the spirit of the modern Parisienne.',
-    price: 980,
+    price: 30,
     currency: 'DH',
     volume: '100ml',
     image: '/images/perfumes/elegance/wa-elegance-09.jpg',
