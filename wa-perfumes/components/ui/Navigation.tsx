@@ -75,18 +75,15 @@ export default function Navigation() {
       >
         <div className="max-w-[1440px] mx-auto px-6 md:px-10 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="relative z-[101] flex items-center gap-3">
+          <Link href="/" className="relative z-[101] flex items-center">
             <Image
               src="/logo.png"
               alt="WA Perfumes"
-              width={40}
-              height={40}
-              className={`transition-all duration-500 ${scrolled ? 'w-8 h-8' : 'w-10 h-10'}`}
+              width={120}
+              height={60}
+              className={`transition-all duration-500 object-contain ${scrolled ? 'w-24 h-12' : 'w-32 h-16'}`}
               priority
             />
-            <span className="hidden sm:block font-[family-name:var(--font-cormorant)] text-lg tracking-[0.2em] uppercase text-[#F5F2EC]">
-              WA Perfumes
-            </span>
           </Link>
 
           {/* Desktop Navigation */}

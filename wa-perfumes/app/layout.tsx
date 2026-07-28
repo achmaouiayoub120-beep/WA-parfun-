@@ -4,12 +4,9 @@ import "./globals.css";
 
 // Providers
 import LenisProvider from "@/providers/LenisProvider";
-import { CursorProvider } from "@/providers/CursorProvider";
-
 // UI Components — client components imported directly
 import Navigation from "@/components/ui/Navigation";
 import CartSlider from "@/components/ui/CartSlider";
-import LuxuryCursor from "@/components/ui/LuxuryCursor";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -69,14 +66,11 @@ export default function RootLayout({
         className="antialiased min-h-screen bg-[#0A0A0A] text-[#F5F2EC] overflow-x-hidden"
         suppressHydrationWarning
       >
-        <CursorProvider>
-          <LenisProvider>
-            <LuxuryCursor />
-            <Navigation />
-            <CartSlider />
-            <main>{children}</main>
-          </LenisProvider>
-        </CursorProvider>
+        <LenisProvider>
+          <Navigation />
+          <CartSlider />
+          <main>{children}</main>
+        </LenisProvider>
 
         {/* Film Grain Overlay — pure CSS, zero JS cost */}
         <div className="film-grain" aria-hidden="true" />
