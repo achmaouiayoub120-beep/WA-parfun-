@@ -78,13 +78,13 @@ export default function PerfumeFinder() {
       let match = catalog[0];
       
       if (finalAnswers.note === 'wood') {
-        match = catalog.find(p => p.notes.base.some(n => n.toLowerCase().includes('oud') || n.toLowerCase().includes('wood'))) || catalog[0];
+        match = catalog.find(p => p.baseNotes.some(n => n.toLowerCase().includes('oud') || n.toLowerCase().includes('wood'))) || catalog[0];
       } else if (finalAnswers.note === 'citrus') {
-        match = catalog.find(p => p.notes.top.some(n => n.toLowerCase().includes('citrus') || n.toLowerCase().includes('bergamot'))) || catalog[0];
+        match = catalog.find(p => p.topNotes.some(n => n.toLowerCase().includes('citrus') || n.toLowerCase().includes('bergamot'))) || catalog[0];
       } else if (finalAnswers.note === 'sweet') {
-        match = catalog.find(p => p.notes.base.some(n => n.toLowerCase().includes('vanilla') || n.toLowerCase().includes('amber'))) || catalog[0];
+        match = catalog.find(p => p.baseNotes.some(n => n.toLowerCase().includes('vanilla') || n.toLowerCase().includes('amber'))) || catalog[0];
       } else if (finalAnswers.note === 'floral') {
-        match = catalog.find(p => p.notes.heart.some(n => n.toLowerCase().includes('rose') || n.toLowerCase().includes('jasmine'))) || catalog[0];
+        match = catalog.find(p => p.heartNotes.some(n => n.toLowerCase().includes('rose') || n.toLowerCase().includes('jasmine'))) || catalog[0];
       }
       
       setRecommendation(match);
