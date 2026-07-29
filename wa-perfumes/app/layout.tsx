@@ -8,6 +8,7 @@ import LenisProvider from "@/providers/LenisProvider";
 import Navigation from "@/components/ui/Navigation";
 import CartSlider from "@/components/ui/CartSlider";
 import FloatingInstagram from "@/components/ui/FloatingInstagram";
+import FloatingWhatsApp from "@/components/ui/FloatingWhatsApp";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -71,6 +72,7 @@ export default function RootLayout({
           <Navigation />
           <CartSlider />
           <FloatingInstagram />
+          <FloatingWhatsApp />
           <main>{children}</main>
         </LenisProvider>
 
